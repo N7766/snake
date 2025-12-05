@@ -69,6 +69,8 @@ const state = {
   obstacles: [],
   lastTime: 0,
   lastDt: 0,
+  wordHistory: '',
+  wordFlash: 0,
   isGameOver: false,
   isPaused: false,
   soundEnabled: true,
@@ -92,6 +94,39 @@ const FOOD_COLORS = [
   ['#c59bff', '#e6d5ff'],
 ];
 const LETTER_POOL = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+const WORD_LIST = [
+  // --- 原始/基础词汇 ---
+  'CAT', 'DOG', 'SNAKE', 'GAME', 'JELLY', 'APPLE', 'ORANGE',
+  'WOW', 'COOL', 'NICE', 'GG', 'WUHU', 'MOYU', 'AA', 'BB',
+
+  // --- 编程与技术 (Tech & Code) ---
+  'CODE', 'NODE', 'JAVA', 'PYTHON', 'SWIFT', 'RUST', 'GO', 'JS', 'TS',
+  'HTML', 'CSS', 'REACT', 'VUE', 'LINUX', 'UNIX', 'BASH', 'GIT',
+  'BUG', 'DEBUG', 'FIX', 'TODO', 'DONE', 'FAIL', 'NULL', 'VOID',
+  'TRUE', 'FALSE', 'CONST', 'VAR', 'LET', 'LOOP', 'IF', 'ELSE',
+  'API', 'DATA', 'BYTE', 'BIT', 'CLOUD', 'AI', 'GPT', 'LLM',
+
+  // --- 游戏与操作 (Gaming) ---
+  'PLAY', 'WIN', 'LOSE', 'OVER', 'START', 'PAUSE', 'EXIT',
+  'BOSS', 'HERO', 'ENEMY', 'LEVEL', 'EXP', 'HP', 'MP', 'MANA',
+  'BUFF', 'NERF', 'CARRY', 'TANK', 'HEAL', 'AFK', 'LAG', 'PING',
+  'NOOB', 'PRO', 'EZ', 'HARD', 'RANK', 'SOLO', 'TEAM', 'RUSH',
+
+  // --- 动物与自然 (Animals) ---
+  'LION', 'TIGER', 'BEAR', 'WOLF', 'FOX', 'PIG', 'COW', 'DUCK',
+  'BIRD', 'FISH', 'SHARK', 'WHALE', 'PANDA', 'ZEBRA', 'FROG',
+  'MOON', 'SUN', 'STAR', 'SKY', 'RAIN', 'WIND', 'SNOW', 'FIRE',
+
+  // --- 食物与水果 (Food) ---
+  'BANANA', 'GRAPE', 'LEMON', 'MELON', 'PEAR', 'PEACH', 'PLUM',
+  'CAKE', 'PIE', 'CANDY', 'SUGAR', 'SALT', 'RICE', 'MEAT', 'BEEF',
+  'SODA', 'COKE', 'TEA', 'MILK', 'WATER', 'BEER', 'PIZZA', 'BURGER',
+
+  // --- 有趣/拼音/拟声词 (Fun/Slang) ---
+  'HAHA', 'HEHE', 'XIXI', 'LALA', 'YOYO', 'HEY', 'YEP', 'NOPE',
+  'RICH', 'MONEY', 'GOLD', 'LUCK', 'HAPPY', 'SAD', 'ANGRY',
+  'XYZ', 'ABC', 'NB', '666', 'SOS', 'OMH', 'OMG', 'WTF'
+];
 
 const RIPPLE_CONFIG = {
   spacingBase: 32,
@@ -146,6 +181,8 @@ function initGame() {
   ui.joystick = document.getElementById('joystick');
   ui.mapSelect = document.getElementById('mapSelect');
   ui.pauseBtn = document.getElementById('pauseBtn');
+  ui.wordCard = document.getElementById('wordCard');
+  ui.wordHistory = document.getElementById('wordHistory');
   if (ui.mapSelect) {
     ui.mapSelect.value = state.selectedMap;
   }
@@ -167,6 +204,7 @@ function initGame() {
   state.best = parseInt(localStorage.getItem('jellySnakeBest') || '0', 10);
   ui.bestScore.textContent = state.best;
 
+  renderWordHistory(true);
   bindControls();
   if (ui.panel) ui.panel.classList.add('panel-ready');
   if (ui.topbar) ui.topbar.classList.add('topbar-ready');
@@ -315,6 +353,7 @@ function resetGame() {
   state.isGameOver = false;
   state.isPaused = false;
   state.celebrated = false;
+  state.wordFlash = 0;
   ui.score.textContent = '0';
   if (ui.pauseBtn) ui.pauseBtn.textContent = '暂停';
   spawnFood();
@@ -430,6 +469,9 @@ function update(dt) {
     return true;
   });
 
+  if (state.wordFlash > 0) {
+    state.wordFlash = Math.max(0, state.wordFlash - dt);
+  }
   trackSnakeRipples(dt);
 }
 
@@ -461,6 +503,7 @@ function eatFood(idx, food) {
 
   state.speed = CONFIG.baseSpeed + state.snake.length * CONFIG.speedIncreasePerFood;
 
+  checkWordsOnSnake();
   addRippleAtGamePos(food.x, food.y, 1.05);
   spawnAbsorbEffect(food);
   spawnParticles(food);
@@ -652,6 +695,7 @@ function renderFood(ctx) {
 
 function renderSnake(ctx) {
   const time = performance.now() * 0.006;
+  const flashAlpha = state.wordFlash > 0 ? Math.min(1, state.wordFlash / 0.25) : 0;
   for (let i = state.snake.length - 1; i >= 0; i--) {
     const seg = state.snake[i];
     const wobble = Math.sin(time + i * 0.6) * 0.6;
@@ -662,6 +706,17 @@ function renderSnake(ctx) {
       drawHead(ctx, seg.x, seg.y, size, [colorA, colorB]);
     } else {
       drawLetter(ctx, seg.letter || 'A', seg.x, seg.y, size, [colorA, colorB]);
+    }
+    if (flashAlpha > 0) {
+      const glowR = size + 6;
+      const g = ctx.createRadialGradient(seg.x, seg.y, glowR * 0.25, seg.x, seg.y, glowR);
+      g.addColorStop(0, `rgba(255,255,255,${0.4 * flashAlpha})`);
+      g.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.fillStyle = g;
+      ctx.fillRect(seg.x - glowR, seg.y - glowR, glowR * 2, glowR * 2);
+      ctx.restore();
     }
   }
   // 头部高光
@@ -939,6 +994,41 @@ function drawLetter(ctx, letter, x, y, r, colors) {
   ctx.fillStyle = c1;
   ctx.fillText(letter, x, y);
   ctx.restore();
+}
+
+function checkWordsOnSnake() {
+  if (!state.snake.length) return;
+  const letters = state.snake.map(seg => (seg.letter || '').toUpperCase()).join('');
+  if (!letters) return;
+  const found = [];
+  const seen = new Set();
+  for (const w of WORD_LIST) {
+    if (letters.includes(w) && !seen.has(w)) {
+      found.push(w);
+      seen.add(w);
+    }
+  }
+  if (!found.length) return;
+  state.wordFlash = 0.25;
+  found.forEach(w => { state.wordHistory += `${w} `; });
+  renderWordHistory();
+  flashWordPanel();
+}
+
+function renderWordHistory(initial = false) {
+  if (!ui.wordHistory) return;
+  ui.wordHistory.textContent = state.wordHistory.trim();
+  if (!initial) {
+    ui.wordHistory.scrollTo({ top: ui.wordHistory.scrollHeight, behavior: 'smooth' });
+  } else {
+    ui.wordHistory.scrollTop = ui.wordHistory.scrollHeight;
+  }
+}
+
+function flashWordPanel() {
+  if (!ui.wordHistory) return;
+  ui.wordHistory.classList.add('word-flash');
+  setTimeout(() => ui.wordHistory && ui.wordHistory.classList.remove('word-flash'), 260);
 }
 
 function initRippleLayer() {
