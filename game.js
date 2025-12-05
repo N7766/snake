@@ -125,7 +125,92 @@ const WORD_LIST = [
   // --- 有趣/拼音/拟声词 (Fun/Slang) ---
   'HAHA', 'HEHE', 'XIXI', 'LALA', 'YOYO', 'HEY', 'YEP', 'NOPE',
   'RICH', 'MONEY', 'GOLD', 'LUCK', 'HAPPY', 'SAD', 'ANGRY',
-  'XYZ', 'ABC', 'NB', '666', 'SOS', 'OMH', 'OMG', 'WTF'
+  'XYZ', 'ABC', 'NB', '666', 'SOS', 'OMH', 'OMG', 'WTF',
+
+  // --- 神梗 & 流行语 (Top Tier) ---
+  'YYDS', 'XSWL', 'AWSL', 'U1S1', 'DDDD', 'YIBO', 'GIAO', 'OLIGEI', // 经典老番
+  'TAIKULA', 'ZUNDU', 'SHUANQ', 'YINGKONG', 'QIDONG', 'YAOYAO',     // 泰酷辣, 尊嘟, 栓Q, 硬控, 启动, 遥遥领先
+
+  // --- 打工人 & 生活 (Life & Work) ---
+  'MOYU', 'TANGPING', 'NEIJUAN', 'DAGONG', 'GANFAN', 'BAILAN',      // 摸鱼, 躺平, 内卷, 打工, 干饭, 摆烂
+  'EMO', 'SHEKONG', 'SHENIU', 'FANERSAI', 'CPU', 'KTV',             // 社恐, 社牛, 凡尔赛, 被CPU/PUA了, 被KTV了
+
+  // --- 游戏 & 嘲讽 (Gaming & PvP) ---
+  'LAOLIU', 'POFANG', 'ZHENXIANG', 'BAIGE', 'QIFEI', 'GUAPI',       // 老六, 破防, 真香, 白给, 起飞, 瓜皮
+  'TQL', 'CAIJI', 'XIAFAN', 'JIUZHE', 'KENG', 'GUASHA', 'KEMUSAN',  // 太强了, 菜鸡, 下饭, 就这?, 坑, 刮痧, 科目三
+
+  // --- 口头禅 & 情绪 (Vibe check) ---
+  'HAHA', 'XIXI', 'HEHE', 'AUE', 'WOCAO', 'NIUBI', 'SHUAI', 'MEI',  // 语气词
+  'DIIDI', 'BABIQ', 'JUEZI', 'DAIWE', 'HOUDUN', 'HANLIU',            // 弟弟, 芭比Q, 绝子, 这里的"大王"(带味), 厚敦(土), 汗流浃背
+  
+  'CNN', 'RNN', 'LSTM', 'GRU', 'GAN', 'VAE', 'GNN', 'MLP',      // 经典网络: 卷积, 循环, 生成对抗, 图网络等
+  'GPT', 'BERT', 'LLM', 'YOLO', 'UNET', 'VIT', 'CLIP', 'LORA',  // 热门模型: 变形金刚, 大模型, 目标检测等
+  'RELU', 'TANH', 'GELU', 'SWISH', 'ADAM', 'SGD', 'RMS',        // 激活函数 & 优化器
+  'LOSS', 'BIAS', 'NORM', 'MASK', 'HEAD', 'LOGIT', 'CONV',      // 训练术语: 损失, 偏差, 归一化, 掩码
+  'EPOCH', 'BATCH', 'DATA', 'FEAT', 'LABEL', 'SOTA',            // 训练流程: 轮次, 批次, 特征, 最强模型(State of the Art)
+  'CUDA', 'FP16', 'INT8', 'ONNX', 'JAX', 'TORCH', 'KERAS',      // 硬件/框架: 英伟达加速, 量化, 框架
+  'AGI', 'NLP', 'CV', 'RL', 'AIGC', 'RAG',                       // 领域: 通用AI, 视觉, 强化学习, 生成式, 检索增强
+  // --- 射击与FPS (FPS & Shooters) ---
+  'CSGO', 'RUSHB', 'AWP', 'ECO', 'FLASH', 'SMOKE', 'DEFUSE',     // CS:GO经典: Rush B, 狙, 经济局, 闪光, 烟雾, 拆包
+  'PUBG', 'PANG', '98K', 'LYB', 'FUDI', 'CHIJI',                 // 吃鸡: 平底锅, 98K, 老阴比, 伏地魔, 吃鸡
+  'OW', 'MERCY', 'NERF', 'HIGH', 'APEX', 'COD', 'VALO',          // 守望(午时已到), 削弱, 吸一口(High), 瓦罗兰特
+  'DOOM', 'HALO', 'TF2', 'L4D2', 'GABE',                         // 经典射击与G胖
+
+  // --- MOBA & 竞技 (LOL/DOTA) ---
+  'LOL', 'DOTA', 'GANK', 'SOLO', 'CARRY', 'FEED', 'TROLL',       // 抓人, 单挑, C位, 送人头, 巨魔/捣乱
+  'YASUO', 'TEEMO', 'HASAKI', '0-21-0', '15FF', 'GGWP',          // 亚索, 提莫, 哈撒给, 快乐风男数据, 15投, Good Game Well Played
+  'MID', 'TOP', 'JUNGLE', 'ADC', 'SUP', 'DIFF', 'GAP',           // 位置: 中单, 上单, 打野... DIFF/GAP(差距/锅)
+  'EDG', 'RNG', 'IG', 'T1', 'FAKER', 'UZI', 'TI', 'S13',         // 著名战队与选手/赛事
+  // --- 单机与主机神作 (Console/Single Player) ---
+  'GTA', 'WASTED', 'CJ', 'FIVE', 'RDR2', 'DUTCH',                // GTA: 逝世(Wasted), 荒野大镖客
+  'ZELDA', 'LINK', 'HYRULE', 'KOROK', 'YAHAHA',                  // 塞尔达: 林克, 海拉鲁, 呀哈哈
+  'MARIO', 'LUIGI', 'BOWSER', 'PEACH', 'JUMP', 'COIN',           // 马里奥全家桶
+  'SOULS', 'YOU', 'DIED', 'PRAISE', 'SUN', 'ROLL',               // 黑魂: 受苦, 赞美太阳, 翻滚
+  'MC', 'STEVE', 'CREEPER', 'TNT', 'RAFT', 'TERRA',              // MC与沙盒: 苦力怕
+  '2077', 'OVO', 'JOHNNY', 'WITCHER', 'GWENT', 'DANTE',            // 赛博朋克, 巫师(昆特牌), 鬼泣
+  'CIV', 'TURN', 'ONE', 'MORE', 'SKYRIM', 'FUSRODAH',            // 文明(再来一回合), 老滚5(龙吼)
+
+  // --- 游戏圈通用梗 (General Gaming Memes) ---
+  'STEAM', 'EPIC', 'FREE', 'SALE', 'GABEN', '-90%',              // 喜加一, 打折, G胖的微笑
+  'FF', 'PAY', 'RESPECT', 'AFK', 'LAG', 'BUG', 'GLITCH',          // 按F致敬, 挂机, 延迟, 特性
+  '648', 'WHALE', 'SSR', 'GACHA', 'PITY', 'BAODI',               // 氪金手游: 648, 氪佬(Whale), 抽卡, 保底
+  'OP', 'YUAN', 'SHEN', 'QIDONG', 'MIHOYO', 'TECH',              // 原神, 启动, 米哈游, 科技(Otaku save the world)
+  '4399', '7K7K', 'FLASH', 'MOMO', 'SAIER',                      // 童年回忆: 摩尔庄园, 赛尔号
+  'SAN', 'CHECK', 'CTHULHU', 'TRPG', 'DND', 'DICE',              // 跑团: San值狂掉, 投骰子
+
+  // --- 前端与数据格式 (Web & Data) ---
+  'JSON', 'XML', 'YAML', 'CSV', 'TOML',                          // 数据格式
+  'HTTP', 'HTTPS', 'FTP', 'SSH', 'SMTP',                         // 协议
+  'URL', 'URI', 'DNS', 'IP', 'TCP', 'UDP',                       // 网络基础
+  'DOM', 'BOM', 'AJAX', 'AXIOS', 'FETCH',                        // 前端技术
+  'NPM', 'YARN', 'PNPM', 'VITE', 'WEBPACK',                      // 包管理与构建
+  'SASS', 'LESS', 'SCSS', 'TAILWIND',                            // 样式相关
+  'UI', 'UX', 'SPA', 'SSR', 'CSR', 'SEO',                        // 设计与渲染模式
+
+  // --- 键盘与硬件 (Keyboard & Hardware) ---
+  'CTRL', 'ALT', 'SHIFT', 'TAB', 'ESC', 'DEL',    // 按键
+  'ENTER', 'SPACE', 'CAPS', 'LOCK', 'FN',         // 更多按键
+  'BIOS', 'CMOS', 'UEFI', 'BOOT', 'KERNEL',       // 系统底层
+  'RAM', 'ROM', 'HDD', 'SSD', 'NVME', 'USB',      // 存储与接口
+  'GPU', 'CPU', 'TPU', 'NPU', 'FPGA', 'ASIC',                      // 各种处理器
+  'MOUSE', 'KEY', 'PAD', 'HDMI', 'WIFI',                          // 外设与连接
+
+  // --- 聊天缩写 & 常用语 (Chat & Slang) ---
+  'BRB', 'GTG', 'BTW', 'FYI', 'TBH', 'IDK',                       // Be Right Back, Got To Go, By The Way...
+  'AKA', 'DIY', 'RIP', 'MVP', 'VIP', 'POV',                       // Also Known As, Do It Yourself...
+  'FAQ', 'QNA', 'TBD', 'TBA', 'WIP', 'EOD',                       // 常见工作缩写: TBD(待定), WIP(进行中)
+  'SOS', 'MAYDAY', 'HELP', 'INFO', 'NEWS',                        // 紧急与信息
+  'NPC', 'PC', 'GM', 'PVE', 'PVP', 'DPS',                         // 游戏术语纯字母版
+
+  // --- 极客与加密货币 (Geek & Crypto) ---
+  'BTC', 'ETH', 'DOGE', 'SHIB', 'PEPE',                           // 比特币, 以太坊, 狗狗币...
+  'DEFI', 'NFT', 'DAO', 'WEB', 'META',                            // 去中心化金融, 元宇宙
+  'HODL', 'FOMO', 'FUD', 'REKT', 'DYOR',                          // 币圈黑话: HODL(拿住), REKT(爆仓/被毁), DYOR(Do Your Own Research)
+  'BULL', 'BEAR', 'WHALE', 'MOON', 'LAMBO',                       // 牛市, 熊市, 巨鲸, To The Moon
+  'SAAS', 'PAAS', 'IAAS', 'BAAS', 'FAAS',                         // 各种云服务模式 (Software as a Service...)
+  'LINUX', 'UNIX', 'MAC', 'WIN', 'DOS',                           // 操作系统
+  'VIM', 'EMACS', 'NANO', 'BASH', 'ZSH',                          // 编辑器与Shell
+  'SUDO', 'ROOT', 'USER', 'ADMIN', 'GUEST'                        // 权限
 ];
 
 const RIPPLE_CONFIG = {
@@ -353,11 +438,13 @@ function resetGame() {
   state.isGameOver = false;
   state.isPaused = false;
   state.celebrated = false;
+  state.wordHistory = '';
   state.wordFlash = 0;
   ui.score.textContent = '0';
   if (ui.pauseBtn) ui.pauseBtn.textContent = '暂停';
   spawnFood();
   hideOverlay();
+  renderWordHistory(true);
 }
 
 function gameLoop(timestamp) {
@@ -478,18 +565,26 @@ function update(dt) {
 function eatFood(idx, food) {
   state.food.splice(idx, 1);
   // 增长
-  for (let i = 0; i < (food.type === 'big' ? 2 : 1); i++) {
+  const isBig = food.type === 'big';
+  const segCount = isBig ? 3 : 1;
+  const addedLetters = [];
+  for (let i = 0; i < segCount; i++) {
     const tail = state.snake[state.snake.length - 1];
+    const letterForSeg = isBig
+      ? LETTER_POOL[randInt(0, LETTER_POOL.length - 1)]
+      : food.letter;
     state.snake.push({
       x: tail.x,
       y: tail.y,
       size: 12,
-      letter: food.letter,
+      letter: letterForSeg,
       colorA: food.color[0],
       colorB: food.color[1],
       wrapSafe: CONFIG.wrapSafeTime
     });
+    addedLetters.push((letterForSeg || '').toUpperCase());
   }
+  appendLettersToHistory(addedLetters);
   state.score += food.score;
   if (state.score > state.best) {
     state.best = state.score;
@@ -518,6 +613,9 @@ function eatFood(idx, food) {
 function spawnFood() {
   const margin = 30;
   const desired = 3;
+  if (state.food.length > desired) {
+    state.food = state.food.slice(0, desired);
+  }
   while (state.food.length < desired) {
     const availableLetters = LETTER_POOL.filter(l => !state.food.some(f => f.letter === l));
     const letter = availableLetters.length ? availableLetters[randInt(0, availableLetters.length - 1)] : LETTER_POOL[randInt(0, LETTER_POOL.length - 1)];
@@ -1010,9 +1108,15 @@ function checkWordsOnSnake() {
   }
   if (!found.length) return;
   state.wordFlash = 0.25;
-  found.forEach(w => { state.wordHistory += `${w} `; });
+  found.forEach(w => { state.wordHistory += ` ${w} `; });
   renderWordHistory();
   flashWordPanel();
+}
+
+function appendLettersToHistory(lettersArr) {
+  if (!lettersArr || !lettersArr.length) return;
+  lettersArr.forEach(l => { state.wordHistory += (l || '').toUpperCase(); });
+  renderWordHistory();
 }
 
 function renderWordHistory(initial = false) {
