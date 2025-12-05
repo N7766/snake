@@ -13,17 +13,29 @@
     <span></span><span></span><span></span><span></span><span></span>
   </div>
   <header class="topbar glass">
-    <div>
+    <div class="topbar-left">
       <h1>Jelly Snake 果冻贪吃蛇</h1>
       <p>用方向键 / 滑动控制果冻蛇，吞噬小果冻，放空大脑！</p>
     </div>
-    <div class="controls-inline">
-      <button id="restartBtn" class="btn primary">重新开始</button>
-      <button id="pauseBtn" class="btn ghost">暂停</button>
-      <label class="toggle">
-        <input type="checkbox" id="soundToggle" checked>
-        <span>音效</span>
-      </label>
+    <div class="topbar-right">
+      <div class="mini-stats">
+        <div class="mini-card">
+          <span>当前得分</span>
+          <strong id="score">0</strong>
+        </div>
+        <div class="mini-card">
+          <span>历史最高</span>
+          <strong id="bestScore">0</strong>
+        </div>
+      </div>
+      <div class="controls-inline">
+        <button id="restartBtn" class="btn primary">重新开始</button>
+        <button id="pauseBtn" class="btn ghost">暂停</button>
+        <label class="toggle">
+          <input type="checkbox" id="soundToggle" checked>
+          <span>音效</span>
+        </label>
+      </div>
     </div>
   </header>
 
@@ -54,18 +66,6 @@
     </section>
 
     <aside class="panel glass">
-      <div class="stat">
-        <span>当前得分</span>
-        <strong id="score">0</strong>
-      </div>
-      <div class="stat">
-        <span>历史最高</span>
-        <strong id="bestScore">0</strong>
-      </div>
-      <div class="stat compact">
-        <span>速度档位</span>
-        <strong id="speedLabel">慢</strong>
-      </div>
       <label class="stat map-picker">
         <span>地图</span>
         <select id="mapSelect">
@@ -74,7 +74,6 @@
           <option value="map5">稀疏方块</option>
         </select>
       </label>
-      <div class="hint">提示：蛇越长，速度会轻微提升。避开自己的身体！</div>
       <button id="restartBtnSecondary" class="btn full primary">重新开始</button>
     </aside>
   </main>

@@ -68,6 +68,7 @@ const state = {
   particles: [],
   obstacles: [],
   lastTime: 0,
+  lastDt: 0,
   isGameOver: false,
   isPaused: false,
   soundEnabled: true,
@@ -138,7 +139,6 @@ function initGame() {
   ui.overlayBest = document.getElementById('overlayBest');
   ui.score = document.getElementById('score');
   ui.bestScore = document.getElementById('bestScore');
-  ui.speedLabel = document.getElementById('speedLabel');
   ui.restartBtns = [document.getElementById('restartBtn'), document.getElementById('restartBtnSecondary')];
   ui.overlayRestart = document.getElementById('overlayRestart');
   ui.overlayResume = document.getElementById('overlayResume');
@@ -146,6 +146,9 @@ function initGame() {
   ui.joystick = document.getElementById('joystick');
   ui.mapSelect = document.getElementById('mapSelect');
   ui.pauseBtn = document.getElementById('pauseBtn');
+  if (ui.mapSelect) {
+    ui.mapSelect.value = state.selectedMap;
+  }
   ui.panel = document.querySelector('.panel');
   ui.topbar = document.querySelector('.topbar');
   ui.controls = document.querySelector('.controls-inline');
@@ -221,9 +224,7 @@ function bindControls() {
     state.soundEnabled = ui.soundToggle.checked;
   });
   ui.mapSelect.addEventListener('change', (e) => {
-    state.selectedMap = e.target.value;
-    triggerMapTransition(`已切换到「${e.target.options[e.target.selectedIndex].text}」`);
-    resetGame();
+    applyMapSelection(e.target.value, e.target);
   });
   ui.pauseBtn.addEventListener('click', togglePause);
 }
@@ -315,7 +316,6 @@ function resetGame() {
   state.isPaused = false;
   state.celebrated = false;
   ui.score.textContent = '0';
-  ui.speedLabel.textContent = '慢';
   if (ui.pauseBtn) ui.pauseBtn.textContent = '暂停';
   spawnFood();
   hideOverlay();
@@ -325,6 +325,7 @@ function gameLoop(timestamp) {
   if (!state.lastTime) state.lastTime = timestamp;
   const dt = (timestamp - state.lastTime) / 1000;
   state.lastTime = timestamp;
+  state.lastDt = dt;
 
   updateRippleLayer(dt);
   if (!state.isPaused) {
@@ -459,7 +460,6 @@ function eatFood(idx, food) {
   scoreBounce();
 
   state.speed = CONFIG.baseSpeed + state.snake.length * CONFIG.speedIncreasePerFood;
-  updateSpeedLabel();
 
   addRippleAtGamePos(food.x, food.y, 1.05);
   spawnAbsorbEffect(food);
@@ -638,7 +638,7 @@ function renderObstacles(ctx) {
 
   // 过渡计时
   if (state.mapTransition > 0) {
-    state.mapTransition = Math.max(0, state.mapTransition - dt);
+    state.mapTransition = Math.max(0, state.mapTransition - (state.lastDt || 0));
   }
 }
 
@@ -711,14 +711,6 @@ function scoreBounce() {
   setTimeout(() => ui.score.classList.remove('score-pulse'), 220);
 }
 
-function updateSpeedLabel() {
-  const len = state.snake.length;
-  let label = '慢';
-  if (len > 18) label = '中';
-  if (len > 32) label = '快';
-  ui.speedLabel.textContent = label;
-}
-
 function endGame() {
   if (state.isGameOver) return;
   state.isGameOver = true;
@@ -740,6 +732,26 @@ function generateMap(key) {
   const obs = builder(state.width, state.height);
   // 避开初始出生区
   return obs.filter(o => Math.hypot(o.x - state.width / 2, o.y - state.height / 2) > 120);
+}
+
+function applyMapSelection(mapKey, selectEl) {
+  const key = MAP_BUILDERS[mapKey] ? mapKey : 'plain';
+  state.selectedMap = key;
+  if (ui.mapSelect && ui.mapSelect.value !== key) {
+    ui.mapSelect.value = key;
+  }
+  state.obstacles = generateMap(key);
+  state.food = [];
+  state.bonus = null;
+  spawnFood();
+  state.snake.forEach(seg => { seg.wrapSafe = CONFIG.wrapSafeTime; });
+  const label = selectEl && selectEl.options ? (selectEl.options[selectEl.selectedIndex]?.text || '') : '';
+  triggerMapTransition(label ? `已切换到「${label}」` : '');
+}
+
+function triggerMapTransition(message = '') {
+  state.mapMessage = message;
+  state.mapTransition = CONFIG.mapTransitionDuration;
 }
 
 function randInt(a, b) {
