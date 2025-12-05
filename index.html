@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Jelly Snake 果冻贪吃蛇</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="background-glow"></div>
+  <div class="background-particles">
+    <span></span><span></span><span></span><span></span><span></span>
+  </div>
+  <header class="topbar glass">
+    <div>
+      <h1>Jelly Snake 果冻贪吃蛇</h1>
+      <p>用方向键 / 滑动控制果冻蛇，吞噬小果冻，放空大脑！</p>
+    </div>
+    <div class="controls-inline">
+      <button id="restartBtn" class="btn primary">重新开始</button>
+      <button id="pauseBtn" class="btn ghost">暂停</button>
+      <label class="toggle">
+        <input type="checkbox" id="soundToggle" checked>
+        <span>音效</span>
+      </label>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="game-area glass">
+      <div id="gameWrapper">
+        <canvas id="gameCanvas" width="640" height="640"></canvas>
+        <div id="gameOverlay" class="overlay hidden">
+          <div class="dialog glass">
+            <h2>游戏结束</h2>
+            <p id="overlayScore">本局得分：0</p>
+            <p id="overlayBest">历史最高：0</p>
+            <div class="dialog-actions">
+              <button id="overlayRestart" class="btn primary">再来一盘</button>
+              <button id="overlayResume" class="btn ghost">返回游戏</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mobile-joystick" id="joystick">
+        <button data-dir="up">↑</button>
+        <div class="middle-row">
+          <button data-dir="left">←</button>
+          <button data-dir="down">↓</button>
+          <button data-dir="right">→</button>
+        </div>
+      </div>
+    </section>
+
+    <aside class="panel glass">
+      <div class="stat">
+        <span>当前得分</span>
+        <strong id="score">0</strong>
+      </div>
+      <div class="stat">
+        <span>历史最高</span>
+        <strong id="bestScore">0</strong>
+      </div>
+      <div class="stat compact">
+        <span>速度档位</span>
+        <strong id="speedLabel">慢</strong>
+      </div>
+      <label class="stat map-picker">
+        <span>地图</span>
+        <select id="mapSelect">
+          <option value="plain">柔和平原（可穿边）</option>
+          <option value="map1">方阵围墙</option>
+          <option value="map5">稀疏方块</option>
+        </select>
+      </label>
+      <div class="hint">提示：蛇越长，速度会轻微提升。避开自己的身体！</div>
+      <button id="restartBtnSecondary" class="btn full primary">重新开始</button>
+    </aside>
+  </main>
+
+  <script src="game.js"></script>
+</body>
+</html>
+
