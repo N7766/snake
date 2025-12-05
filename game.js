@@ -11,6 +11,7 @@ const CONFIG = {
   maxLength: 90,
   bonusDuration: 7,
   wrapSafeTime: 5,
+  mapTransitionDuration: 0.35,
   particleCountRange: [3, 6],
   foodTypes: [
     { type: 'small', radius: 10, score: 1, color: ['#ff9ad7', '#ffd1f2'] },
@@ -71,7 +72,11 @@ const state = {
   isPaused: false,
   soundEnabled: true,
   selectedMap: 'plain',
-  celebrated: false
+  celebrated: false,
+  mapTransition: 0,
+  mapMessage: '',
+  headImage: null,
+  headImageLoaded: false
 };
 
 const ui = {};
@@ -177,6 +182,7 @@ function bindControls() {
   });
   ui.mapSelect.addEventListener('change', (e) => {
     state.selectedMap = e.target.value;
+    triggerMapTransition(`已切换到「${e.target.options[e.target.selectedIndex].text}」`);
     resetGame();
   });
   ui.pauseBtn.addEventListener('click', togglePause);
@@ -585,6 +591,11 @@ function renderObstacles(ctx) {
     ctx.fill();
     ctx.restore();
   });
+
+  // 过渡计时
+  if (state.mapTransition > 0) {
+    state.mapTransition = Math.max(0, state.mapTransition - dt);
+  }
 }
 
 function renderFood(ctx) {
