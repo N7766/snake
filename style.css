@@ -1,16 +1,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap');
 
 :root {
-  --bg-gradient: radial-gradient(circle at 20% 20%, #ffcef3 0, transparent 40%),
-                  radial-gradient(circle at 80% 10%, #c6d8ff 0, transparent 35%),
-                  radial-gradient(circle at 50% 80%, #b3ffd4 0, transparent 45%),
-                  linear-gradient(135deg, #f9b9ff 0%, #9ad0ff 50%, #b6ffe3 100%);
+  --bg-gradient: radial-gradient(circle at 20% 30%, rgba(34, 67, 120, 0.7) 0, transparent 40%),
+                  radial-gradient(circle at 80% 20%, rgba(30, 94, 126, 0.6) 0, transparent 36%),
+                  radial-gradient(circle at 50% 80%, rgba(70, 30, 94, 0.6) 0, transparent 44%),
+                  linear-gradient(145deg, #050915 0%, #071026 42%, #0b182f 100%);
   --glass: rgba(255, 255, 255, 0.18);
   --border: rgba(255, 255, 255, 0.35);
   --text: #0f1c3f;
   --accent: #7b8bff;
   --accent-2: #ff89c3;
-  --shadow: 0 20px 50px rgba(15, 37, 81, 0.18);
+  --shadow: 0 20px 50px rgba(10, 22, 60, 0.3);
   --font-size-body: 14px;
   --font-size-label: 15px;
   --font-weight-regular: 500;
@@ -25,17 +25,29 @@ body {
   font-family: 'Nunito', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: var(--font-size-body);
   color: var(--text);
-  background: var(--bg-gradient);
+  background: #050915;
+  background-image:
+    linear-gradient(160deg, rgba(14, 28, 64, 0.7), rgba(5, 10, 22, 0.9)),
+    var(--bg-gradient);
   overflow: hidden;
   touch-action: none;
+}
+
+.ripple-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: -3;
+  pointer-events: none;
+  background: radial-gradient(1200px circle at 20% 80%, rgba(40, 90, 150, 0.25), transparent 30%),
+              radial-gradient(900px circle at 80% 10%, rgba(120, 70, 170, 0.22), transparent 65%);
 }
 
 .background-glow {
   position: fixed;
   inset: 0;
-  background: radial-gradient(1200px circle at 20% 30%, rgba(255,255,255,0.4), transparent 60%),
-              radial-gradient(900px circle at 80% 20%, rgba(255,255,255,0.25), transparent 60%);
-  filter: blur(50px);
+  background: radial-gradient(1100px circle at 30% 40%, rgba(120,180,255,0.25), transparent 30%),
+              radial-gradient(900px circle at 70% 25%, rgba(220,140,255,0.18), transparent 60%);
+  filter: blur(55px);
   z-index: -2;
 }
 
@@ -50,7 +62,7 @@ body {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, #fff, rgba(255,255,255,0.1));
+  background: radial-gradient(circle at 30% 30%, #c9e6ff, rgba(105,175,255,0.06));
   animation: float 12s ease-in-out infinite;
   opacity: 0.45;
 }
@@ -133,10 +145,10 @@ body {
   height: auto;
   max-height: 78vh;
   border-radius: 18px;
-  border: 1px solid rgba(255,255,255,0.35);
+  border: 1px solid rgba(255,255,255,0.05);
   overflow: hidden;
-  box-shadow: 0 15px 45px rgba(33, 69, 120, 0.25);
-  background: linear-gradient(145deg, rgba(255,255,255,0.25), rgba(255,255,255,0.08));
+  box-shadow: 0 15px 45px rgba(20, 40, 90, 0.05);
+  background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.05));
 }
 
 #gameCanvas {
@@ -190,8 +202,8 @@ body {
   align-items: center;
   padding: 12px 14px;
   border-radius: 12px;
-  background: rgba(255,255,255,0.4);
-  border: 1px solid rgba(255,255,255,0.6);
+  background: rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.3);
   transition: transform 160ms ease, box-shadow 180ms ease, background 180ms ease;
 }
 .stat strong {
@@ -202,7 +214,7 @@ body {
 .stat.compact { padding: 10px 12px; }
 .stat:hover {
   transform: translateY(-1px) scale(1.02);
-  background: rgba(255,255,255,0.55);
+  background: rgba(255,255,255,0.02);
   box-shadow: 0 10px 18px rgba(0,0,0,0.08);
 }
 .stat:hover strong { transform: scale(1.03); }

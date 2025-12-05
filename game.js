@@ -27,16 +27,16 @@ const MAP_BUILDERS = {
 
 const MAPS = {
   map1: [
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 1, 1, 0, 0, 1, 1, 0, 1],
-    [1, 0, 1, 1, 0, 0, 1, 1, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 1, 1, 0, 0, 1, 1, 0, 1],
-    [1, 0, 1, 1, 0, 0, 1, 1, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    [1, 0, 0, 1, 0, 1, 0, 1, 0, 1],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 1, 1, 0, 1, 1, 1, 0, 0],
+    [0, 0, 1, 0, 0, 0, 0, 1, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 1, 0, 0, 0, 0, 1, 0, 0],
+    [0, 0, 1, 1, 0, 0, 1, 1, 0, 1],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [1, 0, 0, 1, 0, 1, 0, 1, 0, 1]
   ],
   map5: [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -92,6 +92,44 @@ const FOOD_COLORS = [
 ];
 const LETTER_POOL = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
+const RIPPLE_CONFIG = {
+  spacingBase: 32,
+  spacingMin: 26,
+  spacingMax: 40,
+  headStep: 26,
+  tailInterval: 0.35,
+  waveSpeed: 320,
+  waveFreq: 0.055,
+  decay: 0.86,
+  maxRadius: 720,
+  breatheSpeed: 0.55,
+  baseAlpha: 0.45,
+  palette: [
+    [124, 225, 255],
+    [130, 200, 255],
+    [160, 140, 255],
+    [130, 255, 215],
+    [220, 150, 255],
+    [255, 180, 210]
+  ]
+};
+
+const rippleLayer = {
+  canvas: null,
+  ctx: null,
+  width: 0,
+  height: 0,
+  dpr: 1,
+  points: [],
+  ripples: [],
+  lastHeadPos: null,
+  headTravel: 0,
+  tailCooldown: 0,
+  background: null,
+  spacing: RIPPLE_CONFIG.spacingBase,
+  time: 0
+};
+
 function initGame() {
   ui.canvas = document.getElementById('gameCanvas');
   ui.wrapper = document.getElementById('gameWrapper');
@@ -116,6 +154,7 @@ function initGame() {
   state.headImage.onload = () => { state.headImageLoaded = true; };
   state.headImage.src = 'maodie.png';
 
+  initRippleLayer();
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
 
@@ -139,6 +178,7 @@ function resizeCanvas() {
   state.height = h;
   ui.canvas.width = w;
   ui.canvas.height = h;
+  updateCanvasRect();
 }
 
 function bindControls() {
@@ -286,6 +326,7 @@ function gameLoop(timestamp) {
   const dt = (timestamp - state.lastTime) / 1000;
   state.lastTime = timestamp;
 
+  updateRippleLayer(dt);
   if (!state.isPaused) {
     update(dt);
   }
@@ -388,6 +429,7 @@ function update(dt) {
     return true;
   });
 
+  trackSnakeRipples(dt);
 }
 
 function eatFood(idx, food) {
@@ -419,6 +461,7 @@ function eatFood(idx, food) {
   state.speed = CONFIG.baseSpeed + state.snake.length * CONFIG.speedIncreasePerFood;
   updateSpeedLabel();
 
+  addRippleAtGamePos(food.x, food.y, 1.05);
   spawnAbsorbEffect(food);
   spawnParticles(food);
   playPop();
@@ -479,6 +522,7 @@ function eatBonus() {
   scoreBounce();
   state.speed += 30;
   triggerCelebrate();
+  addRippleAtGamePos(state.snake[0].x, state.snake[0].y, 1.2);
   playPop();
   state.bonus = null;
 }
@@ -535,8 +579,8 @@ function render() {
 
   // 背景柔光
   const bgGrad = ctx.createLinearGradient(0, 0, state.width, state.height);
-  bgGrad.addColorStop(0, 'rgba(255,255,255,0.6)');
-  bgGrad.addColorStop(1, 'rgba(255,255,255,0.35)');
+  bgGrad.addColorStop(0, 'rgba(255,255,255,0.1)');
+  bgGrad.addColorStop(1, 'rgba(255,255,255,0.1)');
   ctx.fillStyle = bgGrad;
   ctx.fillRect(0, 0, state.width, state.height);
 
@@ -883,6 +927,175 @@ function drawLetter(ctx, letter, x, y, r, colors) {
   ctx.fillStyle = c1;
   ctx.fillText(letter, x, y);
   ctx.restore();
+}
+
+function initRippleLayer() {
+  const canvas = document.getElementById('rippleCanvas');
+  if (!canvas) return;
+  rippleLayer.canvas = canvas;
+  rippleLayer.ctx = canvas.getContext('2d');
+  resizeRippleCanvas();
+  buildRipplePoints();
+  // 预热一次中心波纹，进入页面即有轻微律动
+  setTimeout(() => addRippleAtGamePos(state.width / 2, state.height / 2, 0.35), 180);
+  window.addEventListener('resize', () => {
+    resizeRippleCanvas();
+    buildRipplePoints();
+  });
+}
+
+function resizeRippleCanvas() {
+  if (!rippleLayer.canvas) return;
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  rippleLayer.width = w;
+  rippleLayer.height = h;
+  rippleLayer.dpr = window.devicePixelRatio || 1;
+  rippleLayer.canvas.style.width = `${w}px`;
+  rippleLayer.canvas.style.height = `${h}px`;
+  rippleLayer.canvas.width = Math.floor(w * rippleLayer.dpr);
+  rippleLayer.canvas.height = Math.floor(h * rippleLayer.dpr);
+  rippleLayer.ctx.setTransform(rippleLayer.dpr, 0, 0, rippleLayer.dpr, 0, 0);
+  rippleLayer.background = rippleLayer.ctx.createLinearGradient(0, 0, w, h);
+  rippleLayer.background.addColorStop(0, 'rgba(6, 14, 30, 0.9)');
+  rippleLayer.background.addColorStop(1, 'rgba(8, 16, 36, 0.92)');
+  rippleLayer.spacing = Math.max(
+    RIPPLE_CONFIG.spacingMin,
+    Math.min(RIPPLE_CONFIG.spacingMax, Math.round(Math.min(w, h) / 22))
+  );
+  updateCanvasRect();
+}
+
+function buildRipplePoints() {
+  if (!rippleLayer.canvas) return;
+  rippleLayer.points = [];
+  const s = rippleLayer.spacing || RIPPLE_CONFIG.spacingBase;
+  for (let y = -s; y <= rippleLayer.height + s; y += s) {
+    for (let x = -s; x <= rippleLayer.width + s; x += s) {
+      rippleLayer.points.push({
+        x,
+        y,
+        base: 0.32 + Math.random() * 0.4,
+        phase: Math.random() * Math.PI * 2,
+        color: RIPPLE_CONFIG.palette[randInt(0, RIPPLE_CONFIG.palette.length - 1)]
+      });
+    }
+  }
+}
+
+function updateCanvasRect() {
+  if (!ui.canvas) return;
+  rippleLayer.lastRect = ui.canvas.getBoundingClientRect();
+}
+
+function mapGameToRipple(x, y) {
+  if (!rippleLayer.ctx || !ui.canvas) return null;
+  if (!rippleLayer.lastRect) updateCanvasRect();
+  const rect = rippleLayer.lastRect;
+  return {
+    x: rect.left + (x / state.width) * rect.width,
+    y: rect.top + (y / state.height) * rect.height
+  };
+}
+
+function addRippleAtGamePos(x, y, strength = 1) {
+  const pos = mapGameToRipple(x, y);
+  if (!pos) return;
+  rippleLayer.ripples.push({
+    x: pos.x,
+    y: pos.y,
+    radius: 0,
+    strength,
+    speed: RIPPLE_CONFIG.waveSpeed + Math.random() * 80
+  });
+  if (rippleLayer.ripples.length > 18) rippleLayer.ripples.shift();
+}
+
+function updateRippleLayer(dt) {
+  if (!rippleLayer.ctx) return;
+  rippleLayer.time += dt;
+  rippleLayer.ripples = rippleLayer.ripples.filter(r => {
+    r.radius += (r.speed || RIPPLE_CONFIG.waveSpeed) * dt;
+    r.strength *= RIPPLE_CONFIG.decay;
+    return r.strength > 0.02 && r.radius < RIPPLE_CONFIG.maxRadius;
+  });
+  // 偶发环境波纹，保持轻微流动感
+  if (Math.random() < dt * 0.25) {
+    const rx = Math.random() * rippleLayer.width;
+    const ry = Math.random() * rippleLayer.height;
+    rippleLayer.ripples.push({
+      x: rx,
+      y: ry,
+      radius: 0,
+      strength: 0.18,
+      speed: RIPPLE_CONFIG.waveSpeed * 0.85
+    });
+  }
+  renderRippleLayer();
+}
+
+function renderRippleLayer() {
+  const ctx = rippleLayer.ctx;
+  const w = rippleLayer.width;
+  const h = rippleLayer.height;
+  if (!ctx) return;
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.fillStyle = rippleLayer.background || '#050915';
+  ctx.fillRect(0, 0, w, h);
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.shadowBlur = 4;
+  ctx.shadowColor = 'rgba(140, 215, 255, 0.25)';
+  const t = rippleLayer.time;
+  const freq = RIPPLE_CONFIG.waveFreq;
+  for (let i = 0; i < rippleLayer.points.length; i++) {
+    const p = rippleLayer.points[i];
+    let offsetX = 0;
+    let offsetY = 0;
+    let rippleBoost = 0;
+    for (let j = 0; j < rippleLayer.ripples.length; j++) {
+      const r = rippleLayer.ripples[j];
+      const dx = p.x - r.x;
+      const dy = p.y - r.y;
+      const dist = Math.hypot(dx, dy) || 1;
+      const diff = dist - r.radius;
+      const wave = Math.sin(diff * freq) * r.strength * Math.exp(-Math.abs(diff) * 0.012);
+      offsetX += (dx / dist) * wave * 8;
+      offsetY += (dy / dist) * wave * 8;
+      rippleBoost += wave * 0.6;
+    }
+    const breathe = 1 + Math.sin(t * RIPPLE_CONFIG.breatheSpeed + p.phase) * 0.12;
+    const alpha = Math.max(0, Math.min(1, (p.base * breathe + rippleBoost + 0.08) * RIPPLE_CONFIG.baseAlpha));
+    if (alpha < 0.02) continue;
+    const px = p.x + offsetX;
+    const py = p.y + offsetY;
+    const color = p.color;
+    ctx.fillStyle = `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${alpha})`;
+    ctx.beginPath();
+    ctx.arc(px, py, 1.9, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+function trackSnakeRipples(dt) {
+  if (!state.snake.length) return;
+  const head = state.snake[0];
+  if (rippleLayer.lastHeadPos) {
+    rippleLayer.headTravel += Math.hypot(head.x - rippleLayer.lastHeadPos.x, head.y - rippleLayer.lastHeadPos.y);
+  }
+  rippleLayer.lastHeadPos = { x: head.x, y: head.y };
+  if (rippleLayer.headTravel > RIPPLE_CONFIG.headStep) {
+    addRippleAtGamePos(head.x, head.y, 0.75);
+    rippleLayer.headTravel = 0;
+  }
+  rippleLayer.tailCooldown = Math.max(0, rippleLayer.tailCooldown - dt);
+  if (rippleLayer.tailCooldown <= 0 && state.snake.length > 4) {
+    const idx = Math.min(state.snake.length - 1, 3 + Math.floor(Math.random() * 5));
+    const seg = state.snake[idx];
+    addRippleAtGamePos(seg.x, seg.y, 0.35);
+    rippleLayer.tailCooldown = RIPPLE_CONFIG.tailInterval;
+  }
 }
 
 
