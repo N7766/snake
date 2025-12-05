@@ -1,8 +1,8 @@
 // Jelly Snake 主逻辑（原生 JS + Canvas）
 const CONFIG = {
   boardSize: 640,
-  baseSpeed: 120,
-  speedIncreasePerFood: 1.5,
+  baseSpeed: 100,
+  speedIncreasePerFood: 1,
   followFactor: 0.1,
   segmentSpacing: 18,
   firstGapMultiplier: 1.6,
@@ -103,6 +103,9 @@ function initGame() {
   ui.joystick = document.getElementById('joystick');
   ui.mapSelect = document.getElementById('mapSelect');
   ui.pauseBtn = document.getElementById('pauseBtn');
+  ui.panel = document.querySelector('.panel');
+  ui.topbar = document.querySelector('.topbar');
+  ui.controls = document.querySelector('.controls-inline');
   state.headImage = new Image();
   state.headImageLoaded = false;
   state.headImage.onload = () => { state.headImageLoaded = true; };
@@ -118,6 +121,8 @@ function initGame() {
   ui.bestScore.textContent = state.best;
 
   bindControls();
+  if (ui.panel) ui.panel.classList.add('panel-ready');
+  if (ui.topbar) ui.topbar.classList.add('topbar-ready');
   resetGame();
   requestAnimationFrame(gameLoop);
 }
@@ -399,6 +404,8 @@ function eatFood(idx, food) {
     state.best = state.score;
     localStorage.setItem('jellySnakeBest', state.best);
     ui.bestScore.textContent = state.best;
+    ui.bestScore.classList.add('best-flash');
+    setTimeout(() => ui.bestScore.classList.remove('best-flash'), 240);
   }
   ui.score.textContent = state.score;
   scoreBounce();
@@ -645,12 +652,8 @@ function headBounce() {
 }
 
 function scoreBounce() {
-  ui.score.style.transform = 'scale(1.18)';
-  ui.score.style.color = '#ff5fa2';
-  setTimeout(() => {
-    ui.score.style.transform = 'scale(1)';
-    ui.score.style.color = 'inherit';
-  }, 180);
+  ui.score.classList.add('score-pulse');
+  setTimeout(() => ui.score.classList.remove('score-pulse'), 220);
 }
 
 function updateSpeedLabel() {
@@ -876,6 +879,13 @@ function togglePause() {
   if (state.isGameOver) return;
   state.isPaused = !state.isPaused;
   if (ui.pauseBtn) ui.pauseBtn.textContent = state.isPaused ? '继续' : '暂停';
+  if (ui.pauseBtn) {
+    ui.pauseBtn.classList.add('btn-pulse');
+    setTimeout(() => ui.pauseBtn.classList.remove('btn-pulse'), 200);
+  }
+  if (ui.controls) {
+    ui.controls.classList.toggle('controls-dim', state.isPaused);
+  }
 }
 
 window.addEventListener('click', () => {
